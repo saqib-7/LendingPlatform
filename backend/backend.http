@@ -1,0 +1,19 @@
+@backend_HostAddress = https://localhost:7001
+
+### Submit an application. The response contains the decision and its explanation.
+POST {{backend_HostAddress}}/api/loan-applications
+Content-Type: application/json
+
+{
+  "loanAmount": 500000,
+  "assetValue": 800000,
+  "creditScore": 850
+}
+
+### See the running totals after submitting one or more applications.
+GET {{backend_HostAddress}}/api/loan-applications/summary
+Accept: application/json
+
+### List all applications, newest first.
+GET {{backend_HostAddress}}/api/loan-applications
+Accept: application/json
