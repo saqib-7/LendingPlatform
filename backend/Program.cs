@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddDbContext<LendingDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("LendingDatabase")));
-builder.Services.AddScoped<ILoanDecisionService, LoanDecisionService>();
+builder.Services.AddScoped<LoanDecisionService>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();

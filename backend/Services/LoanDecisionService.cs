@@ -2,7 +2,7 @@ using LendingPlatform.Domain;
 
 namespace LendingPlatform.Services;
 
-public sealed class LoanDecisionService : ILoanDecisionService
+public sealed class LoanDecisionService
 {
     private const decimal MinimumLoanAmount = 100_000m;
     private const decimal MaximumLoanAmount = 1_500_000m;
