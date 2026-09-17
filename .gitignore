@@ -7,3 +7,4 @@
 
 .vscode/
 .vs/
+# .env  for testing purpose I am keeping .env file as it only contains URL. But in industrial projects, .env here is important!

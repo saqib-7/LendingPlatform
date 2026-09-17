@@ -9,6 +9,15 @@ builder.Services.AddDbContext<LendingDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("LendingDatabase")));
 builder.Services.AddScoped<LoanDecisionService>();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendDevelopment", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -23,6 +32,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+app.UseCors("FrontendDevelopment");
 app.MapControllers();
 app.Run();
 

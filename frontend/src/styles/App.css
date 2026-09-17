@@ -1,0 +1,183 @@
+/* One external font import — for the monospace numbers only.
+   Delete this line if you'd rather stay 100% offline; everything
+   else in this file uses fonts already on your machine. */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+/* ---------- Design tokens ---------- */
+:root {
+  --font-heading: Baskerville, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --font-body: Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+
+  --paper: #f3c5c5; 
+  --panel: #e9d9e7;
+  --line: #ddb4b4;
+  --ink: #1f1b16;
+  --muted: #7d6f5c;
+
+  --accent: #d34d4d;    
+  --accent-dark: #8c1e1e;
+
+  --approved: #33633f;
+  --approved-bg: #e9f0e5;
+  --declined: #a3341f;
+  --declined-bg: #f6e7de;
+
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--paper);
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input { font: inherit; }
+
+main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 72px; }
+
+.hero { max-width: 620px; margin-bottom: 40px; }
+
+.brand {
+  color: var(--accent);
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+  margin: 0 0 18px;
+  
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-size: .78rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+h1, h2, p { margin-top: 0; }
+
+h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(2.1rem, 4.4vw, 3.6rem);
+  font-weight: 400;
+  letter-spacing: -.005em;
+  line-height: 1.12;
+  margin-bottom: 14px;
+}
+
+h2 {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.hero > p:last-child, .muted { color: var(--muted); line-height: 1.6; }
+
+.content-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, .95fr) minmax(0, 1.25fr);
+  align-items: start;
+}
+
+.panel, .decision-result {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 28px;
+}
+
+form { display: grid; gap: 8px; margin-top: 22px; }
+
+label { font-size: .84rem; font-weight: 600; margin-top: 6px; }
+
+input {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  color: var(--ink);
+  padding: 11px 12px;
+}
+
+input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(179, 73, 31, .14);
+  outline: none;
+}
+
+button {
+  background: var(--accent);
+  border: 0;
+  border-radius: 2px;
+  color: #fff8f0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: .85rem;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  margin-top: 16px;
+  padding: 12px 18px;
+  transition: background .15s ease;
+}
+
+button:hover { background: var(--accent-dark); }
+button:disabled { cursor: wait; opacity: .6; }
+
+.secondary-button {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  margin: 0;
+}
+
+.secondary-button:hover { background: var(--paper); border-color: var(--accent); }
+
+.form-error, .page-error { color: var(--declined); line-height: 1.5; margin: 14px 0 0; }
+
+.decision-result { border-left: 3px solid; border-radius: 2px; margin-top: 22px; }
+.decision-result h2 { font-size: 1.6rem; margin-bottom: 8px; }
+
+.approved { border-left-color: var(--approved); background: var(--approved-bg); }
+.approved h2, .success-number { color: var(--approved); }
+
+.declined { border-left-color: var(--declined); background: var(--declined-bg); }
+.declined h2, .danger-number { color: var(--declined); }
+
+.ltv { color: var(--muted); font-family: var(--font-mono); font-size: .85rem; margin-bottom: 0; }
+
+.section-heading { align-items: flex-start; display: flex; gap: 18px; justify-content: space-between; }
+
+.metrics { display: grid; gap: 1px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 26px; background: var(--line); border: 1px solid var(--line); }
+
+.metrics article { background: var(--panel); min-height: 100px; padding: 18px; }
+.metrics article:first-child { grid-column: span 2; }
+
+.metrics span {
+  color: var(--muted);
+  display: block;
+  font-size: .78rem;
+  margin-bottom: 8px;
+}
+
+.metrics strong {
+  font-family: var(--font-mono);
+  font-size: clamp(1.15rem, 1.8vw, 1.6rem);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 780px) {
+  main { padding: 36px 17px 52px; }
+  .content-grid { grid-template-columns: 1fr; }
+  .panel, .decision-result { padding: 20px; }
+}
+
+@media (max-width: 390px) {
+  .metrics { grid-template-columns: 1fr; }
+  .metrics article:first-child { grid-column: auto; }
+  .section-heading { align-items: stretch; flex-direction: column; }
+  .secondary-button { width: 100%; }
+}

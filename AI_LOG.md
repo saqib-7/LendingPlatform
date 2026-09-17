@@ -197,3 +197,213 @@ Two things worth a 30-second check, not a redo:
 2. **No `Migrations/` folder under `Data/`** — means you're likely calling `EnsureCreated()` rather than using EF Core migrations. That's totally fine for a demo/take-home; just flagging it so it's a choice you're making on purpose, not an oversight.
 
 Everything else — you're good to go.
+
+
+
+
+# My Prompt -
+
+Write a C# method that takes a loan amount, asset value, and credit score, and returns Approved or Declined based on these rules: [pasted the full business rules from the brief]
+
+# Response -
+
+public static string DecideLoan(decimal loanAmount, decimal assetValue, int creditScore)
+{
+    if (assetValue <= 0 || creditScore < 1 || creditScore > 999)
+    {
+        return "Declined";
+    }
+
+    if (loanAmount < 100_000m || loanAmount > 1_500_000m)
+    {
+        return "Declined";
+    }
+
+    decimal ltv = loanAmount / assetValue * 100m;
+
+    if (loanAmount >= 1_000_000m)
+    {
+        return ltv <= 60m && creditScore >= 950
+            ? "Approved"
+            : "Declined";
+    }
+
+    if (ltv >= 90m)
+    {
+        return "Declined";
+    }
+
+    int requiredCreditScore = ltv < 60m
+        ? 750
+        : ltv < 80m
+            ? 800
+            : 900;
+
+    return creditScore >= requiredCreditScore
+        ? "Approved"
+        : "Declined";
+}
+Use decimal for money, for example:
+var decision = DecideLoan(500_000m, 800_000m, 850);
+// "Approved"
+The m after numbers tells C# they are decimal values.
+
+
+
+# MY PROMPT - 
+
+Give me the API endpoints which I will need in the project. Tell me why it is needed for this project.
+
+# Response -
+
+Your project will need these API endpoints:
+Method	Endpoint	Why it is needed
+POST	/api/loan-applications	Submits a new loan application. It calculates LTV, applies the lending rules, saves the application, and returns Approved/Declined with a reason.
+GET	/api/loan-applications	Returns every submitted loan application, newest first. Useful for an application-history table on the frontend.
+GET	/api/loan-applications/{id}	Returns one specific application by its database ID. Useful when a user clicks an application to view its details.
+GET	/api/loan-applications/summary	Returns dashboard metrics required by the brief: total applications, accepted/declined counts, total accepted loan value, and mean LTV.
+
+
+Example: create an application
+POST /api/loan-applications
+Content-Type: application/json
+
+{
+  "loanAmount": 500000,
+  "assetValue": 800000,
+  "creditScore": 850
+}
+Example response:
+{
+  "id": 1,
+  "loanAmount": 500000,
+  "assetValue": 800000,
+  "creditScore": 850,
+  "loanToValuePercent": 62.5,
+  "decision": "Accepted",
+  "decisionReason": "The application meets all lending criteria.",
+  "submittedAtUtc": "2026-09-17T..."
+}
+The frontend will use POST when the user submits the form, then call GET /summary and GET /api/loan-applications to refresh the dashboard and application list.
+
+
+# MY PROMPT - 
+
+Tell me which contracts I will need for the response and request for this project to be able to design the body which API can send as response or request
+
+# Response - 
+
+You will need three contract classes in backend\Contracts\.
+Contract	Used for	Direction
+CreateLoanApplicationRequest	Receives the loan amount, asset value, and credit score when creating an application.	Frontend → API
+LoanApplicationResponse	Returns a saved application, including its calculated LTV, decision, reason, ID, and submission time.	API → Frontend
+PortfolioSummaryResponse	Returns overall lending metrics for the dashboard.	API → Frontend
+
+
+CreateLoanApplicationRequest will be used by:
+POST /api/loan-applications
+Example JSON sent to the API:
+{
+  "loanAmount": 500000,
+  "assetValue": 800000,
+  "creditScore": 850
+}
+It also validates input:
+- Loan amount must be greater than 0.
+- Asset value must be greater than 0.
+- Credit score must be between 1 and 999.
+LoanApplicationResponse will be returned by:
+POST /api/loan-applications
+GET /api/loan-applications
+GET /api/loan-applications/{id}
+Example response:
+{
+  "id": 1,
+  "loanAmount": 500000,
+  "assetValue": 800000,
+  "creditScore": 850,
+  "loanToValuePercent": 62.5,
+  "decision": "Accepted",
+  "decisionReason": "The application meets all lending criteria.",
+  "submittedAtUtc": "2026-09-17T10:00:00+00:00"
+}
+PortfolioSummaryResponse will be returned by:
+GET /api/loan-applications/summary
+Example response:
+{
+  "totalApplications": 10,
+  "acceptedApplications": 6,
+  "declinedApplications": 4,
+  "totalValueOfLoansWritten": 3200000,
+  "meanLoanToValuePercent": 67.85
+}
+Contracts are useful because they clearly separate:
+- what the frontend is allowed to send;
+- what the API chooses to return;
+- how the database stores its internal information.
+
+
+# MY PROMPT -
+
+Give me a proper code and a clean code to connect the backend and frontend by the CORS connection. Be sure to be accurate and precise so that the backend APIs are connected to the frontend successfully and without any errors. DONT CHANGE ANYTHING IN THE BACKEND. Just connect the existing API endpoints of the backend to the frontend
+
+# Response -
+
+The frontend/backend connection will be handled by these files:
+[.env](C:/Users/saqib/OneDrive/Desktop/LendingPlatform/frontend/.env)
+VITE_API_BASE_URL=http://localhost:5193
+[loanApi.js](C:/Users/saqib/OneDrive/Desktop/LendingPlatform/frontend/src/api/loanApi.js)
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+// Turns an unsuccessful API response into a helpful error for the page to display.
+async function throwIfNotOk(response) {
+  if (response.ok) return;
+
+  let message = 'The request could not be completed.';
+  try {
+    const errorBody = await response.json();
+    message = errorBody.title || errorBody.detail || message;
+  } catch {
+    // Keep the friendly fallback message when the server did not return JSON.
+  }
+
+  throw new Error(message);
+}
+
+// Sends a new loan application to the real backend and returns its decision.
+export async function createLoanApplication(application) {
+  const response = await fetch(`${baseUrl}/api/loan-applications`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(application),
+  });
+
+  await throwIfNotOk(response);
+  return response.json();
+}
+
+// Gets the current portfolio totals from the real backend.
+export async function getPortfolioSummary() {
+  const response = await fetch(`${baseUrl}/api/loan-applications/summary`);
+  await throwIfNotOk(response);
+  return response.json();
+}
+In [App.jsx](C:/Users/saqib/OneDrive/Desktop/LendingPlatform/frontend/src/App.jsx), these functions are used like this:
+const result = await createLoanApplication(application);
+setDecision(result);
+
+const portfolioData = await getPortfolioSummary();
+setSummary(portfolioData);
+The CORS connection is enabled in the backend at [Program.cs](C:/Users/saqib/OneDrive/Desktop/LendingPlatform/backend/Program.cs):
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendDevelopment", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+app.UseCors("FrontendDevelopment");
+This allows the React website on port 5173 to call the ASP.NET API on port 5193.

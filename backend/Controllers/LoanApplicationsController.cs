@@ -9,7 +9,7 @@ namespace LendingPlatform.Controllers;
 
 [ApiController]
 [Route("api/loan-applications")]
-public sealed class LoanApplicationsController(LendingDbContext dbContext, ILoanDecisionService loanDecisionService) : ControllerBase
+public sealed class LoanApplicationsController(LendingDbContext dbContext, LoanDecisionService loanDecisionService) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<LoanApplicationResponse>> Create(CreateLoanApplicationRequest request, CancellationToken cancellationToken)
